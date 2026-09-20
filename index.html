@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Tamil Animals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta+Malar:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #e0f7fa; /* Light cyan safe color */
+            --card-bg: #ffffff;
+            --primary-text: #333333;
+            --btn-bg: #f5f5f5;
+            --btn-border: #cccccc;
+            --correct-bg: #4caf50;
+            --wrong-bg: #f44336;
+            --next-bg: #2196f3;
+        }
+
+        body {
+            font-family: 'Mukta Malar', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 5px solid #b2ebf2;
+            position: relative;
+        }
+
+        /* Progress indicator */
+        .progress {
+            font-size: 1.2rem;
+            color: #777;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        /* Huge Emoji display */
+        .emoji-display {
+            font-size: 150px;
+            line-height: 1.2;
+            margin: 20px 0;
+            user-select: none;
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.15));
+        }
+
+        /* Options Container */
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* Standard Button */
+        .option-btn {
+            background-color: var(--btn-bg);
+            border: 3px solid var(--btn-border);
+            border-radius: 20px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-text);
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            font-family: 'Mukta Malar', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* State Classes */
+        .option-btn.correct {
+            background-color: var(--correct-bg);
+            border-color: #388e3c;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 8px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-bg);
+            border-color: #d32f2f;
+            color: white;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .option-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Result and Next Button */
+        .result-name {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--correct-bg);
+            min-height: 70px;
+            margin-bottom: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .next-btn {
+            background-color: var(--next-bg);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 15px 40px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 12px rgba(33, 150, 243, 0.3);
+            display: none; /* Hidden by default */
+            font-family: 'Mukta Malar', sans-serif;
+            width: 100%;
+        }
+
+        .next-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <span class="progress" id="progress-text">விலங்கு 1 / 50</span>
+        
+        <div class="emoji-display" id="animal-emoji">
+            <!-- Emoji loaded via JS -->
+        </div>
+
+        <div class="options" id="options-container">
+            <!-- Buttons dynamically generated -->
+        </div>
+
+        <div class="result-name" id="result-name">
+            <!-- Full name revealed here -->
+        </div>
+
+        <button class="next-btn" id="next-btn" onclick="nextAnimal()">
+            அடுத்து ➔
+        </button>
+    </div>
+
+    <script>
+        const allAnimals = [
+            {emoji:'🐶',name:'நாய்',letter:'நா'}, {emoji:'🐱',name:'பூனை',letter:'பூ'}, 
+            {emoji:'🐘',name:'யானை',letter:'யா'}, {emoji:'🐅',name:'புலி',letter:'பு'}, 
+            {emoji:'🐒',name:'குரங்கு',letter:'கு'}, {emoji:'🦁',name:'சிங்கம்',letter:'சி'}, 
+            {emoji:'🐻',name:'கரடி',letter:'க'}, {emoji:'🦊',name:'நரி',letter:'ந'}, 
+            {emoji:'🐺',name:'ஓநாய்',letter:'ஓ'}, {emoji:'🦓',name:'வரிக்குதிரை',letter:'வ'}, 
+            {emoji:'🦒',name:'ஒட்டகச்சிவிங்கி',letter:'ஒ'}, {emoji:'🐎',name:'குதிரை',letter:'கு'}, 
+            {emoji:'🐄',name:'பசு',letter:'ப'}, {emoji:'🐂',name:'எருது',letter:'எ'}, 
+            {emoji:'🐷',name:'பன்றி',letter:'ப'}, {emoji:'🐑',name:'செம்மறியாடு',letter:'செ'}, 
+            {emoji:'🐐',name:'ஆடு',letter:'ஆ'}, {emoji:'🐪',name:'ஒட்டகம்',letter:'ஒ'}, 
+            {emoji:'🦌',name:'மான்',letter:'மா'}, {emoji:'🦏',name:'காண்டாமிருகம்',letter:'கா'}, 
+            {emoji:'🦛',name:'நீர்யானை',letter:'நீ'}, {emoji:'🐁',name:'எலி',letter:'எ'}, 
+            {emoji:'🐇',name:'முயல்',letter:'மு'}, {emoji:'🐿️',name:'அணில்',letter:'அ'}, 
+            {emoji:'🦔',name:'முள்ளம்பன்றி',letter:'மு'}, {emoji:'🦇',name:'வௌவால்',letter:'வௌ'}, 
+            {emoji:'🐸',name:'தவளை',letter:'த'}, {emoji:'🐢',name:'ஆமை',letter:'ஆ'}, 
+            {emoji:'🐍',name:'பாம்பு',letter:'பா'}, {emoji:'🐊',name:'முதலை',letter:'மு'}, 
+            {emoji:'🦎',name:'பல்லி',letter:'ப'}, {emoji:'🐦',name:'பறவை',letter:'ப'}, 
+            {emoji:'🐔',name:'கோழி',letter:'கோ'}, {emoji:'🦆',name:'வாத்து',letter:'வா'}, 
+            {emoji:'🦅',name:'கழுகு',letter:'க'}, {emoji:'🦉',name:'ஆந்தை',letter:'ஆ'}, 
+            {emoji:'🦚',name:'மயில்',letter:'ம'}, {emoji:'🦜',name:'கிளி',letter:'கி'}, 
+            {emoji:'🦢',name:'அன்னம்',letter:'அ'}, {emoji:'🐧',name:'பென்குயின்',letter:'பெ'}, 
+            {emoji:'🦋',name:'பட்டாம்பூச்சி',letter:'ப'}, {emoji:'🐛',name:'புழு',letter:'பு'}, 
+            {emoji:'🐜',name:'எறும்பு',letter:'எ'}, {emoji:'🐝',name:'தேனீ',letter:'தே'}, 
+            {emoji:'🐞',name:'வண்டு',letter:'வ'}, {emoji:'🕷️',name:'சிலந்தி',letter:'சி'}, 
+            {emoji:'🦂',name:'தேள்',letter:'தே'}, {emoji:'🦀',name:'நண்டு',letter:'ந'}, 
+            {emoji:'🐟',name:'மீன்',letter:'மீ'}, {emoji:'🐬',name:'டால்பின்',letter:'டா'}
+        ];
+
+        let shuffledAnimals = [];
+        let currentIndex = 0;
+        let isAnswered = false;
+
+        const progressText = document.getElementById('progress-text');
+        const emojiDisplay = document.getElementById('animal-emoji');
+        const optionsContainer = document.getElementById('options-container');
+        const resultName = document.getElementById('result-name');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Fisher-Yates Shuffle Algorithm
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Initialize or Restart the Game
+        function initGame() {
+            shuffledAnimals = shuffleArray(allAnimals);
+            currentIndex = 0;
+            loadAnimal();
+        }
+
+        function loadAnimal() {
+            isAnswered = false;
+            const currentAnimal = shuffledAnimals[currentIndex];
+            
+            // Update UI
+            progressText.textContent = `விலங்கு ${currentIndex + 1} / ${shuffledAnimals.length}`;
+            emojiDisplay.textContent = currentAnimal.emoji;
+            resultName.textContent = "";
+            resultName.style.opacity = "0";
+            nextBtn.style.display = "none";
+            optionsContainer.innerHTML = "";
+
+            // --- Generate Options ---
+            // 1. Find all unique letters in the entire dataset
+            const allUniqueLetters = [...new Set(allAnimals.map(a => a.letter))];
+            
+            // 2. Remove the correct letter so we only have strict distractors
+            const wrongLetters = allUniqueLetters.filter(letter => letter !== currentAnimal.letter);
+            
+            // 3. Shuffle distractors and pick the first 2
+            const shuffledWrongs = shuffleArray(wrongLetters);
+            const selectedWrongs = [shuffledWrongs[0], shuffledWrongs[1]];
+
+            // 4. Combine correct letter + 2 wrong letters and shuffle their positions
+            const options = [currentAnimal.letter, ...selectedWrongs];
+            const finalOptions = shuffleArray(options);
+
+            // Render buttons
+            finalOptions.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.textContent = letter;
+                btn.className = "option-btn";
+                btn.onclick = () => handleGuess(btn, letter, currentAnimal);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleGuess(btnElement, guessedLetter, currentAnimal) {
+            // Prevent multiple clicks if already answered correctly
+            if (isAnswered) return; 
+
+            if (guessedLetter === currentAnimal.letter) {
+                // CORRECT ANSWER
+                isAnswered = true;
+                
+                // Style correct button
+                btnElement.classList.add('correct');
+                
+                // Show full name
+                resultName.textContent = currentAnimal.name;
+                resultName.style.opacity = "1";
+                
+                // Show next button
+                nextBtn.style.display = "block";
+                
+                // Lock other options
+                Array.from(optionsContainer.children).forEach(child => {
+                    if (child !== btnElement) {
+                        child.classList.add('disabled');
+                    }
+                });
+            } else {
+                // WRONG ANSWER
+                // Add wrong class to trigger animation and red color
+                btnElement.classList.add('wrong');
+                
+                // Remove wrong class after animation completes so it can be clicked again
+                setTimeout(() => {
+                    if (!isAnswered) { // Only remove if they haven't gotten it right in the meantime
+                        btnElement.classList.remove('wrong');
+                    }
+                }, 400); 
+            }
+        }
+
+        function nextAnimal() {
+            currentIndex++;
+            if (currentIndex >= shuffledAnimals.length) {
+                // Reshuffle and start over if we reached the end
+                initGame();
+            } else {
+                // Move to the next animal in the shuffled array
+                loadAnimal();
+            }
+        }
+
+        // Start the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
